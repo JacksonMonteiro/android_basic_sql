@@ -1,7 +1,9 @@
 package space.jacksonmonteiro.basicsql
 
+import android.content.ContentValues
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -11,6 +13,8 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
 import space.jacksonmonteiro.basicsql.databinding.ActivityMainBinding
+
+private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,7 +33,28 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
+        //  Open or Create Database
         val database = baseContext.openOrCreateDatabase("sqlite-test-1.db", Context.MODE_PRIVATE, null)
+
+        // Create table
+        var sql = "CREATE TABLE contacts(_id INTEGER PRIMARY KEY NOT NULL, name TEXT, phone TEXT, email TEXT)"
+        Log.d(TAG, "onCreate sql is $sql")
+        database.execSQL(sql)
+
+        // Insert data in contacts table
+        sql = "INSERT INTO contacts (name, phone, email) VALUES ('Jackson', '21900000000', 'jackson@email.com')"
+        Log.d(TAG, "onCreate sql is $sql")
+        database.execSQL(sql)
+
+        // Another form to insert data in database
+        val values = ContentValues().apply {
+            put("name", "Duarte")
+            put("phone", "85900000000")
+            put("email", "duarte@email.com")
+        }
+
+        val generatedId = database.insert("contacts", null, values)
+        Log.d(TAG, "onCreate: record added with id $generatedId")
 
         binding.fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
