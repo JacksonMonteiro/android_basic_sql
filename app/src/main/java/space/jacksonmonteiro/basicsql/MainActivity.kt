@@ -36,8 +36,11 @@ class MainActivity : AppCompatActivity() {
         //  Open or Create Database
         val database = baseContext.openOrCreateDatabase("sqlite-test-1.db", Context.MODE_PRIVATE, null)
 
+        // Drop table on start app
+        database.execSQL("DROP TABLE IF EXISTS contacts")
+
         // Create table
-        var sql = "CREATE TABLE contacts(_id INTEGER PRIMARY KEY NOT NULL, name TEXT, phone TEXT, email TEXT)"
+        var sql = "CREATE TABLE IF NOT EXISTS contacts(_id INTEGER PRIMARY KEY NOT NULL, name TEXT, phone TEXT, email TEXT)"
         Log.d(TAG, "onCreate sql is $sql")
         database.execSQL(sql)
 
@@ -55,6 +58,23 @@ class MainActivity : AppCompatActivity() {
 
         val generatedId = database.insert("contacts", null, values)
         Log.d(TAG, "onCreate: record added with id $generatedId")
+
+        // Get data from database
+        val query = database.rawQuery("SELECT * FROM contacts", null);
+        query.use { 
+            while (it.moveToNext()) {
+                with(it) {
+                    val id = getLong(0);
+                    val name = getString(1)
+                    val phone = getString(2)
+                    val email = getString(3)
+                    val result = "ID: $id, Name: $name, Phone: $phone, E-mail: $email"
+                    Log.d(TAG, "onCreate: reading data $result")
+                }
+            }
+        }
+        database.close()
+
 
         binding.fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
